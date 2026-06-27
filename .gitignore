@@ -2,3 +2,5 @@
 /vendor/bundle/
 *.ppm
 *.png
+!docs/
+!docs/screenshot.png

@@ -6,6 +6,8 @@ The scene is loosely ported from `~/Coding/Graphics/raymarch-dd`: orbit camera, 
 
 The point is readability: `Vec3` has overloaded operators, the renderer is CPU-side Ruby, and the scene code is compact enough to poke at.
 
+![Ruby raytracer screenshot](docs/screenshot.png)
+
 ## Run Live
 
 ```bash
