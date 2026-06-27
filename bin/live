@@ -1,0 +1,54 @@
+#!/usr/bin/env ruby
+
+require "raylib"
+require_relative "../lib/raymarcher"
+
+shared_lib_path = Gem::Specification.find_by_name("raylib-bindings").full_gem_path + "/lib/"
+arch = RUBY_PLATFORM.split("-")[0]
+Raylib.load_lib(shared_lib_path + "libraylib.#{arch}.so")
+include Raylib
+
+WIDTH = Integer(ENV.fetch("WIDTH", "64"))
+HEIGHT = Integer(ENV.fetch("HEIGHT", "64"))
+SCALE = Integer(ENV.fetch("SCALE", "10"))
+TARGET_FPS = Integer(ENV.fetch("FPS", "30"))
+
+raymarcher = Raymarcher.new(width: WIDTH, height: HEIGHT)
+pixels = "\0".b * (WIDTH * HEIGHT * 4)
+
+InitWindow(WIDTH * SCALE, HEIGHT * SCALE, "ruby-raytracer raymarcher")
+SetTargetFPS(TARGET_FPS)
+
+image = GenImageColor(WIDTH, HEIGHT, Color.from_u8(0, 0, 0, 255))
+texture = LoadTextureFromImage(image)
+UnloadImage(image)
+
+source = Rectangle.create(0, 0, WIDTH, HEIGHT)
+dest = Rectangle.create(0, 0, WIDTH * SCALE, HEIGHT * SCALE)
+origin = Vector2.create(0, 0)
+
+until WindowShouldClose()
+  time = GetTime()
+  offset = 0
+
+  HEIGHT.times do |y|
+    WIDTH.times do |x|
+      r, g, b = raymarcher.color_at(x, y, time)
+      pixels.setbyte(offset, r)
+      pixels.setbyte(offset + 1, g)
+      pixels.setbyte(offset + 2, b)
+      pixels.setbyte(offset + 3, 255)
+      offset += 4
+    end
+  end
+
+  UpdateTexture(texture, pixels)
+  BeginDrawing()
+  ClearBackground(BLACK)
+  DrawTexturePro(texture, source, dest, origin, 0.0, WHITE)
+  DrawFPS(8, 8)
+  EndDrawing()
+end
+
+UnloadTexture(texture)
+CloseWindow()

@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+require_relative "../lib/raymarcher"
+
+width = Integer(ENV.fetch("WIDTH", "160"))
+height = Integer(ENV.fetch("HEIGHT", "90"))
+time = Float(ENV.fetch("TIME", "1.25"))
+output = ENV.fetch("OUT", "frame.ppm")
+raymarcher = Raymarcher.new(width: width, height: height)
+
+File.open(output, "w") do |file|
+  file.puts "P3"
+  file.puts "#{width} #{height}"
+  file.puts "255"
+
+  height.times do |y|
+    row = width.times.map do |x|
+      r, g, b = raymarcher.color_at(x, y, time)
+      "#{r} #{g} #{b}"
+    end
+    file.puts row.join(" ")
+  end
+end
+
+puts "wrote #{output}"
